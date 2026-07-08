@@ -1005,7 +1005,8 @@
             const filteredTasks = appState.tasks.filter(t => t.date >= start && t.date <= end)
                                                 .sort((a,b) => a.date.localeCompare(b.date));
 
-            const data = filteredTasks.map(t => {
+            // 1. Datos de la hoja "Diario" (Actividades)
+            const dataActividades = filteredTasks.map(t => {
                 const type = appState.types.find(type => type.id === t.typeId) || {name: 'Desconocido'};
                 let mins = t.duration || 0;
                 if (!t.duration && t.startTime && t.endTime) mins = timeToMins(t.endTime) - timeToMins(t.startTime);
@@ -1018,9 +1019,41 @@
                 };
             });
 
-            const ws = XLSX.utils.json_to_sheet(data);
+            const wsDiario = XLSX.utils.json_to_sheet(dataActividades);
+            
+            // Ajustar el ancho de las columnas para la hoja Diario
+            wsDiario['!cols'] = [
+                {wch: 12}, // Fecha
+                {wch: 25}, // Tipo de Tarea
+                {wch: 10}, // Minutos
+                {wch: 18}, // Tiempo Dedicado
+                {wch: 60}  // Observaciones
+            ];
+
+            // 2. Datos de la hoja "Perfil"
+            const dataPerfil = [
+                { 'Información del Usuario': 'Nombre y apellidos', 'Detalle': appState.profile.name || 'No especificado' },
+                { 'Información del Usuario': 'Cargo', 'Detalle': appState.profile.role || 'No especificado' },
+                { 'Información del Usuario': 'Departamento', 'Detalle': appState.profile.dept || 'No especificado' },
+                { 'Información del Usuario': 'Horario laboral', 'Detalle': appState.profile.hours || 'No especificado' },
+                { 'Información del Usuario': '', 'Detalle': '' }, // Fila en blanco como separador visual
+                { 'Información del Usuario': 'Periodo del informe', 'Detalle': `Del ${dayjs(start).format('DD/MM/YYYY')} al ${dayjs(end).format('DD/MM/YYYY')}` },
+                { 'Información del Usuario': 'Fecha de exportación', 'Detalle': dayjs().format('DD/MM/YYYY a las HH:mm') }
+            ];
+
+            const wsPerfil = XLSX.utils.json_to_sheet(dataPerfil);
+            
+            // Ajustar el ancho de las columnas para la hoja Perfil
+            wsPerfil['!cols'] = [
+                {wch: 25}, // Información
+                {wch: 50}  // Detalle
+            ];
+
+            // 3. Crear el libro de Excel y añadir las hojas
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Diario");
+            XLSX.utils.book_append_sheet(wb, wsDiario, "Registro de Actividad");
+            XLSX.utils.book_append_sheet(wb, wsPerfil, "Perfil del Trabajador");
+            
             XLSX.writeFile(wb, `DiarioLaboral_${start}_${end}.xlsx`);
             showToast('Excel Exportado');
         }
