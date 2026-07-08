@@ -187,18 +187,6 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- Resumen rápido -->
-                <div class="grid grid-cols-2 gap-3 md:gap-4">
-                    <div class="bg-white p-4 md:p-5 rounded-2xl border border-gray-100 shadow-sm">
-                        <p class="text-xs md:text-sm text-gray-500 font-medium">Horas totales</p>
-                        <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1" id="report-total-hours">0h 0m</p>
-                    </div>
-                    <div class="bg-white p-4 md:p-5 rounded-2xl border border-gray-100 shadow-sm">
-                        <p class="text-xs md:text-sm text-gray-500 font-medium">Tareas completadas</p>
-                        <p class="text-2xl md:text-3xl font-bold text-gray-800 mt-1" id="report-total-tasks">0</p>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -345,8 +333,16 @@
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-600 mb-2">Color</label>
-                    <div class="flex gap-2.5 flex-wrap" id="color-picker">
-                        <!-- Colors inserted by JS -->
+                    <div class="flex items-center gap-3">
+                        <div class="flex gap-2.5 flex-wrap flex-1" id="color-picker">
+                            <!-- Colors inserted by JS -->
+                        </div>
+                        <div class="h-8 w-[1px] bg-gray-200 shrink-0"></div>
+                        <label class="w-8 h-8 rounded-full border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center cursor-pointer relative transition-transform hover:scale-110 shrink-0" id="custom-color-btn" title="Color personalizado">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-blue-500 via-red-500 to-yellow-500 opacity-20 pointer-events-none" id="custom-color-bg"></div>
+                            <i class="ph-bold ph-plus text-xs text-gray-600" id="custom-color-icon"></i>
+                            <input type="color" id="custom-color-input" class="absolute opacity-0 w-full h-full cursor-pointer" onchange="selectCustomColor(event)">
+                        </label>
                     </div>
                 </div>
             </div>
@@ -372,27 +368,35 @@
         dayjs.locale('es');
 
         // --- CONSTANTS & CONFIG ---
-        const COLORS = [
-            { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', hex: '#dbeafe' },
-            { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-200', hex: '#f3e8ff' },
-            { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200', hex: '#dcfce7' },
-            { bg: 'bg-brand-100', text: 'text-brand-800', border: 'border-brand-300', hex: '#fef9c3' },
-            { bg: 'bg-rose-100', text: 'text-rose-700', border: 'border-rose-200', hex: '#ffe4e6' },
-            { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200', hex: '#ffedd5' },
-            { bg: 'bg-teal-100', text: 'text-teal-700', border: 'border-teal-200', hex: '#ccfbf1' },
-            { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200', hex: '#f3f4f6' },
-            { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200', hex: '#e0e7ff' },
-            { bg: 'bg-pink-100', text: 'text-pink-700', border: 'border-pink-200', hex: '#fce7f3' },
-            { bg: 'bg-cyan-100', text: 'text-cyan-700', border: 'border-cyan-200', hex: '#cffafe' },
-            { bg: 'bg-lime-100', text: 'text-lime-700', border: 'border-lime-200', hex: '#ecfccb' }
+        const PREDEFINED_COLORS = [
+            '#ef4444', // Red
+            '#f43f5e', // Rose
+            '#ec4899', // Pink
+            '#d946ef', // Fuchsia
+            '#a855f7', // Purple
+            '#8b5cf6', // Violet
+            '#6366f1', // Indigo
+            '#3b82f6', // Blue
+            '#0ea5e9', // Sky
+            '#06b6d4', // Cyan
+            '#14b8a6', // Teal
+            '#10b981', // Emerald
+            '#22c55e', // Green
+            '#84cc16', // Lime
+            '#eab308', // Yellow
+            '#f59e0b', // Amber
+            '#f97316', // Orange
+            '#78716c', // Stone/Brown
+            '#71717a', // Zinc/Gray
+            '#64748b'  // Slate
         ];
 
         const DEFAULT_TYPES = [
-            { id: 't1', name: 'Desarrollo', colorIndex: 0, order: 0 },
-            { id: 't2', name: 'Diseño', colorIndex: 1, order: 1 },
-            { id: 't3', name: 'Reunión', colorIndex: 3, order: 2 },
-            { id: 't4', name: 'Descanso', colorIndex: 2, order: 3 },
-            { id: 't5', name: 'Gestión', colorIndex: 5, order: 4 }
+            { id: 't1', name: 'Desarrollo', color: '#3b82f6', order: 0 },
+            { id: 't2', name: 'Diseño', color: '#a855f7', order: 1 },
+            { id: 't3', name: 'Reunión', color: '#f59e0b', order: 2 },
+            { id: 't4', name: 'Descanso', color: '#22c55e', order: 3 },
+            { id: 't5', name: 'Gestión', color: '#64748b', order: 4 }
         ];
 
         // --- STATE ---
@@ -403,7 +407,7 @@
             editingTypeId: null,
             tasks: [],
             types: [],
-            selectedColorIndex: 0,
+            selectedColor: PREDEFINED_COLORS[0],
             profile: { name: '', role: '', dept: '', hours: '' }
         };
 
@@ -471,6 +475,15 @@
             appState.types = await dbGetAll('types');
             appState.tasks = await dbGetAll('tasks');
             
+            // Migrate old types that used colorIndex instead of color
+            const fallbackHexes = ['#3b82f6', '#a855f7', '#22c55e', '#f59e0b', '#ec4899', '#f97316', '#06b6d4', '#64748b', '#6366f1', '#ec4899', '#06b6d4', '#84cc16'];
+            appState.types = appState.types.map(t => {
+                if (!t.color) {
+                    t.color = fallbackHexes[t.colorIndex || 0] || '#3b82f6';
+                }
+                return t;
+            });
+
             const savedProfile = localStorage.getItem('worklogger_profile');
             if (savedProfile) {
                 try { appState.profile = JSON.parse(savedProfile); } catch (e) {}
@@ -519,14 +532,11 @@
                     }
                 }
             });
-
-            if (view === 'reports') updateReportSummary();
         }
 
         function renderApp() {
             renderCalendar();
             renderSettings();
-            updateReportSummary();
         }
 
         // --- CALENDAR ---
@@ -590,13 +600,12 @@
             
             todayTasks.forEach(task => {
                 const type = appState.types.find(t => t.id === task.typeId) || DEFAULT_TYPES[0];
-                const colorDef = COLORS[type.colorIndex || 0];
+                const typeColor = type.color || '#3b82f6';
 
                 const el = document.createElement('div');
-                el.className = `p-4 md:p-5 rounded-xl border-l-[6px] flex justify-between items-center cursor-pointer hover:opacity-90 transition-opacity shadow-sm bg-white border border-gray-100 ${colorDef.text}`;
-                // Set the border color directly from hex for stronger visual identity, background soft
-                el.style.borderLeftColor = colorDef.hex; 
-                el.style.backgroundColor = `${colorDef.hex}15`; // add 15 hex transparency
+                el.className = `p-4 md:p-5 rounded-xl border-l-[6px] flex justify-between items-center cursor-pointer hover:opacity-90 transition-opacity shadow-sm bg-white border border-gray-100`;
+                el.style.borderLeftColor = typeColor; 
+                el.style.backgroundColor = `${typeColor}15`;
                 el.onclick = () => openTaskModal(task);
 
                 // calculate duration backwards compatibility just in case
@@ -607,7 +616,7 @@
                     <div class="font-semibold text-sm md:text-base truncate leading-tight text-gray-800">
                         ${type.name}
                     </div>
-                    <div class="font-bold text-xs md:text-sm opacity-90 whitespace-nowrap ml-4 ${colorDef.text}">
+                    <div class="font-bold text-xs md:text-sm opacity-90 whitespace-nowrap ml-4" style="color: ${typeColor}">
                         ${formatDuration(taskMins)}
                     </div>
                 `;
@@ -643,15 +652,15 @@
 
                 dayTasks.forEach(task => {
                     const type = appState.types.find(t => t.id === task.typeId) || DEFAULT_TYPES[0];
-                    const colorDef = COLORS[type.colorIndex || 0];
+                    const typeColor = type.color || '#3b82f6';
 
                     let taskMins = task.duration || 0;
                     if (!task.duration && task.startTime && task.endTime) taskMins = timeToMins(task.endTime) - timeToMins(task.startTime);
 
                     html += `
-                        <div onclick="openTaskModalById('${task.id}')" class="p-2.5 rounded-xl text-[10px] md:text-xs cursor-pointer border-l-[4px] shadow-sm hover:opacity-80 transition-opacity flex flex-col gap-1 border border-gray-100 text-gray-800" style="border-left-color: ${colorDef.hex}; background-color: ${colorDef.hex}15;">
+                        <div onclick="openTaskModalById('${task.id}')" class="p-2.5 rounded-xl text-[10px] md:text-xs cursor-pointer border-l-[4px] shadow-sm hover:opacity-80 transition-opacity flex flex-col gap-1 border border-gray-100 text-gray-800" style="border-left-color: ${typeColor}; background-color: ${typeColor}15;">
                             <div class="font-bold truncate">${type.name}</div>
-                            <div class="opacity-90 font-medium ${colorDef.text}">${formatDuration(taskMins)}</div>
+                            <div class="opacity-90 font-medium" style="color: ${typeColor}">${formatDuration(taskMins)}</div>
                         </div>
                     `;
                 });
@@ -750,7 +759,6 @@
 
             closeModal('modal-task');
             renderCalendar();
-            if(!document.getElementById('view-reports').classList.contains('hide')) updateReportSummary();
         }
 
         async function deleteCurrentTask() {
@@ -761,7 +769,6 @@
                 closeModal('modal-task');
                 renderCalendar();
                 showToast('Tarea eliminada');
-                if(!document.getElementById('view-reports').classList.contains('hide')) updateReportSummary();
             }
         }
 
@@ -787,14 +794,14 @@
             list.innerHTML = '';
             
             appState.types.sort((a,b) => a.order - b.order).forEach((type, index) => {
-                const colorDef = COLORS[type.colorIndex || 0];
+                const typeColor = type.color || '#3b82f6';
                 const typeInitial = type.name.charAt(0).toUpperCase();
                 const li = document.createElement('li');
                 li.className = 'px-4 md:px-6 py-3 md:py-4 flex items-center justify-between hover:bg-gray-50 transition-colors group bg-white';
                 li.innerHTML = `
                     <div class="flex items-center gap-3 md:gap-4">
                         <div class="text-gray-300 hover:text-gray-500 cursor-grab px-1 hidden md:block"><i class="ph ph-dots-six-vertical"></i></div>
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-sm md:text-base font-bold shadow-sm ${colorDef.bg} ${colorDef.text}">
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-sm md:text-base font-bold shadow-sm" style="background-color: ${typeColor}20; color: ${typeColor}">
                             ${typeInitial}
                         </div>
                         <span class="font-semibold text-sm md:text-base text-gray-800">${type.name}</span>
@@ -808,21 +815,22 @@
         }
 
         function buildTypeSelectors() {
-            // Colors
             const colorPicker = document.getElementById('color-picker');
-            colorPicker.innerHTML = COLORS.map((c, i) => `
-                <button onclick="selectColor(${i})" type="button" id="color-btn-${i}" class="w-7 h-7 md:w-8 md:h-8 rounded-full ${c.bg} border-2 ${c.border} flex items-center justify-center transition-transform hover:scale-110">
-                    <i class="ph-bold ph-check text-[10px] md:text-xs ${c.text} hide" id="color-check-${i}"></i>
+            colorPicker.innerHTML = PREDEFINED_COLORS.map((hex, i) => `
+                <button onclick="selectColor('${hex}')" type="button" id="color-btn-${i}" class="w-7 h-7 md:w-8 md:h-8 rounded-full border border-gray-200 flex items-center justify-center transition-transform hover:scale-110 shrink-0" style="background-color: ${hex}">
+                    <i class="ph-bold ph-check text-[10px] md:text-xs text-white hide" id="color-check-${i}"></i>
                 </button>
             `).join('');
         }
 
-        function selectColor(index) {
-            appState.selectedColorIndex = index;
-            COLORS.forEach((_, i) => {
+        function selectColor(hex) {
+            appState.selectedColor = hex;
+            
+            // Actualizar botones predefinidos
+            PREDEFINED_COLORS.forEach((c, i) => {
                 const btn = document.getElementById(`color-btn-${i}`);
                 const check = document.getElementById(`color-check-${i}`);
-                if (i === index) {
+                if (c.toLowerCase() === hex.toLowerCase()) {
                     btn.classList.add('ring-2', 'ring-offset-2', 'ring-gray-400');
                     check.classList.remove('hide');
                 } else {
@@ -830,20 +838,30 @@
                     check.classList.add('hide');
                 }
             });
+
+            // Actualizar botón de color personalizado
+            const customBtn = document.getElementById('custom-color-btn');
+            const customBg = document.getElementById('custom-color-bg');
+            const customIcon = document.getElementById('custom-color-icon');
+            
+            const isPredefined = PREDEFINED_COLORS.some(c => c.toLowerCase() === hex.toLowerCase());
+            
+            if (!isPredefined) {
+                customBtn.classList.add('ring-2', 'ring-offset-2', 'ring-gray-400');
+                customBg.style.backgroundColor = hex;
+                customBg.className = "absolute inset-0 pointer-events-none"; // Removemos gradiente
+                customIcon.classList.add('hide');
+                document.getElementById('custom-color-input').value = hex;
+            } else {
+                customBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-gray-400');
+                customBg.style.backgroundColor = 'transparent';
+                customBg.className = "absolute inset-0 bg-gradient-to-tr from-blue-500 via-red-500 to-yellow-500 opacity-20 pointer-events-none";
+                customIcon.classList.remove('hide');
+            }
         }
 
-        function selectIcon(icon) {
-            appState.selectedIcon = icon;
-            ICONS.forEach(i => {
-                const btn = document.getElementById(`icon-btn-${i}`);
-                if (i === icon) {
-                    btn.classList.add('bg-gray-100', 'border-gray-300', 'text-gray-800');
-                    btn.classList.remove('border-transparent');
-                } else {
-                    btn.classList.remove('bg-gray-100', 'border-gray-300', 'text-gray-800');
-                    btn.classList.add('border-transparent');
-                }
-            });
+        function selectCustomColor(event) {
+            selectColor(event.target.value);
         }
 
         function openTypeModal(id = null) {
@@ -856,10 +874,10 @@
             if (id) {
                 const type = appState.types.find(t => t.id === id);
                 document.getElementById('type-name').value = type.name;
-                selectColor(type.colorIndex || 0);
+                selectColor(type.color || PREDEFINED_COLORS[0]);
             } else {
                 document.getElementById('type-name').value = '';
-                selectColor(0);
+                selectColor(PREDEFINED_COLORS[0]);
             }
             
             document.getElementById('modal-type').classList.remove('hide');
@@ -872,7 +890,7 @@
             let typeData = {
                 id: appState.editingTypeId || `type_${Date.now()}`,
                 name: name,
-                colorIndex: appState.selectedColorIndex,
+                color: appState.selectedColor,
                 order: appState.editingTypeId ? appState.types.find(t=>t.id===appState.editingTypeId).order : appState.types.length
             };
 
@@ -910,32 +928,6 @@
         }
 
         // --- REPORTS & EXPORTS ---
-        function updateReportSummary() {
-            const start = document.getElementById('export-start').value;
-            const end = document.getElementById('export-end').value;
-            
-            const filteredTasks = appState.tasks.filter(t => {
-                return t.date >= start && t.date <= end;
-            });
-
-            let totalMins = 0;
-            filteredTasks.forEach(t => {
-                // fallbacks in case of old data without duration
-                if (t.duration) {
-                    totalMins += t.duration;
-                } else if (t.startTime && t.endTime) {
-                    totalMins += (timeToMins(t.endTime) - timeToMins(t.startTime));
-                }
-            });
-
-            document.getElementById('report-total-tasks').innerText = filteredTasks.length;
-            document.getElementById('report-total-hours').innerText = formatDuration(totalMins);
-        }
-
-        // Add listeners to date inputs
-        document.getElementById('export-start').addEventListener('change', updateReportSummary);
-        document.getElementById('export-end').addEventListener('change', updateReportSummary);
-
         function exportPDF() {
             const start = document.getElementById('export-start').value;
             const end = document.getElementById('export-end').value;
@@ -1069,11 +1061,16 @@
                         const oldTypes = await dbGetAll('types');
                         for(const t of oldTypes) await dbDelete('types', t.id);
 
-                        // Insert new
-                        for(const t of data.types) await dbPut('types', t);
+                        // Insert new, migrating old color indices if needed
+                        const fallbackHexes = ['#3b82f6', '#a855f7', '#22c55e', '#f59e0b', '#ec4899', '#f97316', '#06b6d4', '#64748b', '#6366f1', '#ec4899', '#06b6d4', '#84cc16'];
+                        appState.types = data.types.map(t => {
+                            if (!t.color) t.color = fallbackHexes[t.colorIndex || 0] || '#3b82f6';
+                            return t;
+                        });
+                        
+                        for(const t of appState.types) await dbPut('types', t);
                         for(const t of data.tasks) await dbPut('tasks', t);
 
-                        appState.types = data.types;
                         appState.tasks = data.tasks;
                         
                         if (data.profile) {
