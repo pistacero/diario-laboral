@@ -12,21 +12,16 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#fefce8',
-                            100: '#fef9c3',
-                            200: '#fef08a',
-                            300: '#fde047',
-                            400: '#facc15', // Main Yellow
-                            500: '#eab308',
-                            600: '#ca8a04',
-                            700: '#a16207',
-                            800: '#854d0e',
-                            900: '#713f12',
-                        }
+                        primary: '#606060',
+                        secondary: '#919192',
+                        brand: '#FFD44B',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        sans: ['Inter', 'Segoe UI', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 8px 30px rgba(0, 0, 0, 0.04)',
+                        'subtle': '0 2px 10px rgba(0, 0, 0, 0.02)',
                     }
                 }
             }
@@ -52,12 +47,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #FAFAFA; }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        body { font-family: 'Inter', sans-serif; background-color: #FFFFFF; }
+        /* Custom Scrollbar - Minimalist */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #D1D5DB; }
+        ::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #D4D4D4; }
         
         .hide { display: none !important; }
         .fade-in { animation: fadeIn 0.2s ease-in-out; }
@@ -65,87 +60,98 @@
         
         /* Env safe area for modern mobile browsers */
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 1rem); }
+
+        /* Input overrides for absolute clean look */
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: 0.2s;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover,
+        input[type="time"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
     </style>
 </head>
-<body class="text-gray-800 h-screen flex overflow-hidden">
+<body class="text-primary h-screen flex overflow-hidden bg-white selection:bg-brand/30">
 
     <!-- Desktop Sidebar (Hidden on mobile) -->
     <aside class="hidden md:flex flex-col w-64 bg-white border-r border-gray-100 z-30 shrink-0 relative">
         <div class="p-6 flex items-center gap-3">
             <div class="w-12 h-12 flex items-center justify-center shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 481.52 735.47" class="w-full h-full object-contain">
-                    <path fill="#575757" d="M240.46,108.87c-94.54,0-131.59,42.14-131.59,150.72V521.44l82.34-40V417.29l141-68.48c33.94-17.79,40.45-33,40.45-58.44V259.59C372.65,151,335.61,108.87,240.46,108.87Zm49.77,177.57-99,48.09V266.61c0-70.22,11.5-91.29,49.86-91.29,37.66,0,49.16,21.07,49.16,91.29Z"/>
-                    <path fill="#ffd44b" d="M290.23,391.49v77.37c0,70.22-11.5,91.38-49.16,91.38-38.36,0-49.86-1.52-49.86-58.79l-82.34,40v3.31c0,50,37,81.85,131.59,81.85,95.15,0,132.19-42.13,132.19-150.72V336.31c0,14.08-25.46,27.52-43.92,36.45C308.5,382.56,290.23,391.49,290.23,391.49Z"/>
+                    <path fill="#606060" d="M240.46,108.87c-94.54,0-131.59,42.14-131.59,150.72V521.44l82.34-40V417.29l141-68.48c33.94-17.79,40.45-33,40.45-58.44V259.59C372.65,151,335.61,108.87,240.46,108.87Zm49.77,177.57-99,48.09V266.61c0-70.22,11.5-91.29,49.86-91.29,37.66,0,49.16,21.07,49.16,91.29Z"/>
+                    <path fill="#FFD44B" d="M290.23,391.49v77.37c0,70.22-11.5,91.38-49.16,91.38-38.36,0-49.86-1.52-49.86-58.79l-82.34,40v3.31c0,50,37,81.85,131.59,81.85,95.15,0,132.19-42.13,132.19-150.72V336.31c0,14.08-25.46,27.52-43.92,36.45C308.5,382.56,290.23,391.49,290.23,391.49Z"/>
                 </svg>
             </div>
-            <h1 class="font-bold text-xl tracking-tight leading-tight">Diario<br>Laboral</h1>
+            <h1 class="font-bold text-xl tracking-tight leading-tight text-primary">Diario<br>Laboral</h1>
         </div>
 
         <div class="px-4 mb-6">
-            <button onclick="openTaskModal()" class="w-full bg-brand-400 hover:bg-brand-500 text-brand-900 font-semibold py-3 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-colors duration-200">
+            <button onclick="openTaskModal()" class="w-full bg-brand hover:brightness-95 text-primary font-semibold py-3 px-4 rounded-xl shadow-subtle flex items-center justify-center gap-2 transition-all duration-200">
                 <i class="ph-bold ph-plus"></i> Nueva Tarea
             </button>
         </div>
 
-        <nav class="flex-1 px-4 space-y-2">
-            <button onclick="navigate('calendar')" id="nav-calendar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-brand-900 bg-brand-50 transition-colors">
+        <nav class="flex-1 px-4 space-y-1">
+            <button onclick="navigate('calendar')" id="nav-calendar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-primary bg-gray-50 transition-colors">
                 <i class="ph ph-calendar-blank text-xl"></i> Calendario
             </button>
-            <button onclick="navigate('reports')" id="nav-reports" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+            <button onclick="navigate('reports')" id="nav-reports" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-secondary hover:bg-gray-50 hover:text-primary transition-colors">
                 <i class="ph ph-chart-bar text-xl"></i> Informes
             </button>
-            <button onclick="navigate('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+            <button onclick="navigate('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-secondary hover:bg-gray-50 hover:text-primary transition-colors">
                 <i class="ph ph-gear text-xl"></i> Configuración
             </button>
         </nav>
     </aside>
 
     <!-- Mobile Bottom Navigation -->
-    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 z-40 flex justify-around items-center px-2 py-1 pb-safe shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
-        <button onclick="navigate('calendar')" id="nav-mob-calendar" class="text-brand-600 flex flex-col items-center p-2 w-16 transition-colors">
+    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 z-40 flex justify-around items-center px-2 py-1 pb-safe shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.05)]">
+        <button onclick="navigate('calendar')" id="nav-mob-calendar" class="text-primary flex flex-col items-center p-2 w-16 transition-colors">
             <i id="icon-mob-calendar" class="ph-fill ph-calendar-blank text-[26px]"></i>
             <span class="text-[10px] mt-1 font-medium">Diario</span>
         </button>
         
-        <button onclick="navigate('reports')" id="nav-mob-reports" class="text-gray-400 flex flex-col items-center p-2 w-16 transition-colors">
+        <button onclick="navigate('reports')" id="nav-mob-reports" class="text-secondary flex flex-col items-center p-2 w-16 transition-colors">
             <i id="icon-mob-reports" class="ph ph-chart-bar text-[26px]"></i>
             <span class="text-[10px] mt-1 font-medium">Informes</span>
         </button>
         
         <!-- Floating Action Button (FAB) Mobile -->
         <div class="relative -top-6">
-            <button onclick="openTaskModal()" class="w-14 h-14 bg-brand-400 text-brand-900 rounded-full shadow-lg flex items-center justify-center text-2xl border-4 border-white transition-transform active:scale-95">
+            <button onclick="openTaskModal()" class="w-14 h-14 bg-brand text-primary rounded-full shadow-soft flex items-center justify-center text-2xl border-4 border-white transition-transform active:scale-95">
                 <i class="ph-bold ph-plus"></i>
             </button>
         </div>
 
-        <button onclick="navigate('settings')" id="nav-mob-settings" class="text-gray-400 flex flex-col items-center p-2 w-16 transition-colors">
+        <button onclick="navigate('settings')" id="nav-mob-settings" class="text-secondary flex flex-col items-center p-2 w-16 transition-colors">
             <i id="icon-mob-settings" class="ph ph-gear text-[26px]"></i>
             <span class="text-[10px] mt-1 font-medium">Ajustes</span>
         </button>
     </nav>
 
     <!-- Main Content Area -->
-    <!-- Added pb-[72px] to ensure content scrolls past the bottom mobile nav -->
-    <main class="flex-1 flex flex-col h-full bg-[#FAFAFA] relative pb-[72px] md:pb-0 overflow-hidden">
+    <main class="flex-1 flex flex-col h-full bg-white relative pb-[72px] md:pb-0 overflow-hidden">
         
         <!-- View: Calendar -->
         <div id="view-calendar" class="flex-1 flex flex-col h-full overflow-hidden">
             <!-- Header -->
-            <div class="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-white border-b border-gray-100 shrink-0">
+            <div class="flex items-center justify-between px-4 md:px-8 py-4 bg-white border-b border-gray-100 shrink-0">
                 <div class="flex items-center gap-2 md:gap-4">
-                    <button onclick="changeDate(-1)" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"><i class="ph ph-caret-left"></i></button>
-                    <h2 class="text-lg md:text-xl font-bold w-32 md:w-48 text-center truncate" id="current-date-display">Hoy</h2>
-                    <button onclick="changeDate(1)" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"><i class="ph ph-caret-right"></i></button>
+                    <button onclick="changeDate(-1)" class="p-2 hover:bg-gray-50 rounded-lg text-secondary hover:text-primary transition-colors"><i class="ph ph-caret-left"></i></button>
+                    <h2 class="text-lg md:text-xl font-semibold w-32 md:w-48 text-center truncate text-primary" id="current-date-display">Hoy</h2>
+                    <button onclick="changeDate(1)" class="p-2 hover:bg-gray-50 rounded-lg text-secondary hover:text-primary transition-colors"><i class="ph ph-caret-right"></i></button>
                 </div>
-                <div class="bg-gray-100 p-1 rounded-xl flex gap-1">
-                    <button onclick="setCalendarView('daily')" id="btn-view-daily" class="px-3 md:px-4 py-1.5 rounded-lg text-xs md:text-sm font-medium bg-white shadow-sm text-gray-800">Día</button>
-                    <button onclick="setCalendarView('weekly')" id="btn-view-weekly" class="px-3 md:px-4 py-1.5 rounded-lg text-xs md:text-sm font-medium text-gray-500 hover:text-gray-800">Semana</button>
+                <div class="bg-gray-50/80 p-1 rounded-xl flex gap-1 border border-gray-100">
+                    <button onclick="setCalendarView('daily')" id="btn-view-daily" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-medium bg-white shadow-subtle text-primary transition-all">Día</button>
+                    <button onclick="setCalendarView('weekly')" id="btn-view-weekly" class="px-4 py-1.5 rounded-lg text-xs md:text-sm font-medium text-secondary hover:text-primary transition-all">Semana</button>
                 </div>
             </div>
 
             <!-- Calendar Container -->
-            <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6" id="calendar-scroll-area">
+            <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8" id="calendar-scroll-area">
                 <!-- Daily View -->
                 <div id="daily-view" class="w-full max-w-4xl mx-auto flex flex-col gap-3 md:gap-4">
                     <!-- Events generated by JS -->
@@ -162,28 +168,28 @@
 
         <!-- View: Reports -->
         <div id="view-reports" class="flex-1 flex flex-col h-full overflow-hidden hide">
-            <div class="px-4 md:px-6 py-6 md:py-8 max-w-4xl mx-auto w-full overflow-y-auto">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-gray-800">Informes</h2>
+            <div class="px-4 md:px-8 py-6 md:py-10 max-w-4xl mx-auto w-full overflow-y-auto">
+                <h2 class="text-2xl md:text-3xl font-bold mb-8 text-primary tracking-tight">Informes</h2>
                 
-                <div class="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm mb-6">
-                    <h3 class="text-base md:text-lg font-semibold mb-4 text-gray-800">Filtrar por periodo</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-soft mb-6">
+                    <h3 class="text-base font-semibold mb-5 text-primary">Filtrar por periodo</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
                         <div>
-                            <label class="block text-xs md:text-sm font-medium text-gray-600 mb-1">Fecha Inicio</label>
-                            <input type="date" id="export-start" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm">
+                            <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Fecha Inicio</label>
+                            <input type="date" id="export-start" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none text-sm text-primary transition-all shadow-subtle">
                         </div>
                         <div>
-                            <label class="block text-xs md:text-sm font-medium text-gray-600 mb-1">Fecha Fin</label>
-                            <input type="date" id="export-end" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm">
+                            <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Fecha Fin</label>
+                            <input type="date" id="export-end" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none text-sm text-primary transition-all shadow-subtle">
                         </div>
                     </div>
                     
-                    <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
-                        <button onclick="exportPDF()" class="flex-1 bg-red-50 hover:bg-red-100 text-red-700 font-semibold py-2.5 md:py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors border border-red-200 text-sm md:text-base">
-                            <i class="ph ph-file-pdf text-lg md:text-xl"></i> Exportar a PDF
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="exportPDF()" class="flex-1 bg-white hover:bg-gray-50 text-primary font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all border border-gray-200 text-sm md:text-base shadow-subtle">
+                            <i class="ph ph-file-pdf text-xl"></i> Exportar a PDF
                         </button>
-                        <button onclick="exportExcel()" class="flex-1 bg-green-50 hover:bg-green-100 text-green-700 font-semibold py-2.5 md:py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors border border-green-200 text-sm md:text-base">
-                            <i class="ph ph-file-xls text-lg md:text-xl"></i> Exportar a Excel
+                        <button onclick="exportExcel()" class="flex-1 bg-white hover:bg-gray-50 text-primary font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all border border-gray-200 text-sm md:text-base shadow-subtle">
+                            <i class="ph ph-file-xls text-xl"></i> Exportar a Excel
                         </button>
                     </div>
                 </div>
@@ -192,45 +198,45 @@
 
         <!-- View: Settings -->
         <div id="view-settings" class="flex-1 flex flex-col h-full overflow-y-auto hide">
-            <div class="px-4 md:px-6 py-6 md:py-8 max-w-3xl mx-auto w-full">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-gray-800">Configuración</h2>
+            <div class="px-4 md:px-8 py-6 md:py-10 max-w-3xl mx-auto w-full">
+                <h2 class="text-2xl md:text-3xl font-bold mb-8 text-primary tracking-tight">Configuración</h2>
                 
                 <!-- Perfil -->
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
-                    <div class="p-4 md:p-6 border-b border-gray-100 bg-gray-50/50">
-                        <h3 class="text-base md:text-lg font-semibold text-gray-800">Perfil del Usuario</h3>
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-soft overflow-hidden mb-8">
+                    <div class="px-6 py-5 border-b border-gray-100 bg-white">
+                        <h3 class="text-base font-semibold text-primary">Perfil del Usuario</h3>
                     </div>
-                    <div class="p-4 md:p-6 space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-6 space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-xs md:text-sm font-medium text-gray-600 mb-1">Nombre y apellidos</label>
-                                <input type="text" id="profile-name" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm">
+                                <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Nombre y apellidos</label>
+                                <input type="text" id="profile-name" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none text-sm text-primary transition-all shadow-subtle">
                             </div>
                             <div>
-                                <label class="block text-xs md:text-sm font-medium text-gray-600 mb-1">Cargo</label>
-                                <input type="text" id="profile-role" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm">
+                                <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Cargo</label>
+                                <input type="text" id="profile-role" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none text-sm text-primary transition-all shadow-subtle">
                             </div>
                             <div>
-                                <label class="block text-xs md:text-sm font-medium text-gray-600 mb-1">Departamento</label>
-                                <input type="text" id="profile-dept" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm">
+                                <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Departamento</label>
+                                <input type="text" id="profile-dept" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none text-sm text-primary transition-all shadow-subtle">
                             </div>
                             <div>
-                                <label class="block text-xs md:text-sm font-medium text-gray-600 mb-1">Horario laboral</label>
-                                <input type="text" id="profile-hours" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none text-sm" placeholder="Ej. 08:00 - 17:00">
+                                <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Horario laboral</label>
+                                <input type="text" id="profile-hours" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none text-sm text-primary transition-all shadow-subtle" placeholder="Ej. 08:00 - 17:00">
                             </div>
                         </div>
-                        <div class="flex justify-end mt-4">
-                            <button onclick="saveProfile()" class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-5 rounded-xl transition-colors text-sm shadow-sm">Guardar Perfil</button>
+                        <div class="flex justify-end pt-2">
+                            <button onclick="saveProfile()" class="bg-brand hover:brightness-95 text-primary font-semibold py-2.5 px-6 rounded-xl transition-all text-sm shadow-subtle">Guardar Perfil</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tipos de tareas -->
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
-                    <div class="p-4 md:p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                        <h3 class="text-base md:text-lg font-semibold text-gray-800">Tipos de Tareas</h3>
-                        <button onclick="openTypeModal()" class="text-brand-600 hover:text-brand-700 font-medium text-xs md:text-sm flex items-center gap-1 bg-brand-50 px-3 py-1.5 rounded-lg transition-colors">
-                            <i class="ph ph-plus"></i> Añadir
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-soft overflow-hidden mb-8">
+                    <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white">
+                        <h3 class="text-base font-semibold text-primary">Tipos de Tareas</h3>
+                        <button onclick="openTypeModal()" class="text-primary hover:text-brand font-medium text-xs md:text-sm flex items-center gap-1 transition-colors">
+                            <i class="ph-bold ph-plus"></i> Añadir
                         </button>
                     </div>
                     <div class="p-0">
@@ -240,17 +246,17 @@
                     </div>
                 </div>
 
-                <!-- Backup & Restore moved here for mobile accessibility -->
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div class="p-4 md:p-6 border-b border-gray-100 bg-gray-50/50">
-                        <h3 class="text-base md:text-lg font-semibold text-gray-800">Copia de Seguridad</h3>
-                        <p class="text-xs text-gray-500 mt-1">Guarda o restaura los datos de tu dispositivo.</p>
+                <!-- Backup & Restore -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-soft overflow-hidden">
+                    <div class="px-6 py-5 border-b border-gray-100 bg-white">
+                        <h3 class="text-base font-semibold text-primary">Copia de Seguridad</h3>
+                        <p class="text-xs text-secondary mt-1">Guarda o restaura los datos de tu dispositivo.</p>
                     </div>
-                    <div class="p-4 md:p-6 flex flex-col sm:flex-row gap-3">
-                        <button onclick="exportJSON()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors border border-gray-200 font-medium text-sm">
+                    <div class="p-6 flex flex-col sm:flex-row gap-4">
+                        <button onclick="exportJSON()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-primary bg-white hover:bg-gray-50 transition-colors border border-gray-200 font-medium text-sm shadow-subtle">
                             <i class="ph ph-download-simple text-lg"></i> Exportar Copia
                         </button>
-                        <label class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors border border-gray-200 font-medium text-sm cursor-pointer">
+                        <label class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-primary bg-white hover:bg-gray-50 transition-colors border border-gray-200 font-medium text-sm cursor-pointer shadow-subtle">
                             <i class="ph ph-upload-simple text-lg"></i> Restaurar Datos
                             <input type="file" class="hidden" accept=".json" onchange="importJSON(event)">
                         </label>
@@ -264,53 +270,53 @@
     <!-- MODALS -->
     
     <!-- Task Modal (Create/Edit) -->
-    <div id="modal-task" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-end md:items-center justify-center hide p-0 md:p-4 pb-0">
-        <div class="bg-white rounded-t-3xl md:rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all fade-in max-h-[90vh] flex flex-col">
-            <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
-                <h3 class="font-bold text-lg text-gray-800" id="modal-task-title">Nueva Tarea</h3>
-                <button onclick="closeModal('modal-task')" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"><i class="ph ph-x text-xl"></i></button>
+    <div id="modal-task" class="fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-50 flex items-end md:items-center justify-center hide p-0 md:p-4 pb-0">
+        <div class="bg-white rounded-t-3xl md:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all fade-in max-h-[90vh] flex flex-col border border-gray-100">
+            <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
+                <h3 class="font-semibold text-lg text-primary" id="modal-task-title">Nueva Tarea</h3>
+                <button onclick="closeModal('modal-task')" class="text-secondary hover:text-primary transition-colors p-1 rounded-lg hover:bg-gray-50"><i class="ph ph-x text-xl"></i></button>
             </div>
             
-            <div class="p-5 overflow-y-auto">
-                <div class="space-y-4">
+            <div class="p-6 overflow-y-auto">
+                <div class="space-y-5">
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Tipo de Tarea</label>
-                        <select id="task-type" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none appearance-none font-medium">
+                        <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Tipo de Tarea</label>
+                        <select id="task-type" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none appearance-none text-sm text-primary transition-all shadow-subtle">
                             <!-- Generated by JS -->
                         </select>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Fecha</label>
-                            <input type="date" id="task-date" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none">
+                            <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Fecha</label>
+                            <input type="date" id="task-date" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none text-sm text-primary transition-all shadow-subtle">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Tiempo dedicado</label>
+                            <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Tiempo dedicado</label>
                             <div class="flex gap-2">
                                 <div class="flex-1 relative">
-                                    <input type="number" id="task-hours" min="0" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none pr-8 text-gray-800 font-medium" placeholder="0">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium pointer-events-none">h</span>
+                                    <input type="number" id="task-hours" min="0" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none pr-8 text-primary text-sm transition-all shadow-subtle" placeholder="0">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary text-xs font-medium pointer-events-none">h</span>
                                 </div>
                                 <div class="flex-1 relative">
-                                    <input type="number" id="task-mins" min="0" max="59" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none pr-10 text-gray-800 font-medium" placeholder="0">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium pointer-events-none">min</span>
+                                    <input type="number" id="task-mins" min="0" max="59" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none pr-10 text-primary text-sm transition-all shadow-subtle" placeholder="0">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-secondary text-xs font-medium pointer-events-none">min</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Observaciones (Opcional)</label>
-                        <textarea id="task-notes" rows="2" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none resize-none" placeholder="Detalles de lo realizado..."></textarea>
+                        <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Observaciones (Opcional)</label>
+                        <textarea id="task-notes" rows="3" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none resize-none text-sm text-primary transition-all shadow-subtle" placeholder="Añade detalles sobre esta tarea..."></textarea>
                     </div>
                 </div>
             </div>
             
-            <div class="px-5 py-4 bg-gray-50/50 border-t border-gray-100 flex gap-3 justify-end pb-safe shrink-0">
-                <button id="btn-delete-task" onclick="deleteCurrentTask()" class="hide mr-auto px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl font-medium transition-colors text-sm">Eliminar</button>
-                <button onclick="closeModal('modal-task')" class="px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-colors text-sm">Cancelar</button>
-                <button onclick="saveTask()" id="btn-save-task" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-900 text-white rounded-xl font-semibold shadow-sm transition-colors text-sm">
+            <div class="px-6 py-5 bg-white border-t border-gray-100 flex gap-3 justify-end pb-safe shrink-0">
+                <button id="btn-delete-task" onclick="deleteCurrentTask()" class="hide mr-auto px-4 py-2.5 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-colors text-sm">Eliminar</button>
+                <button onclick="closeModal('modal-task')" class="px-5 py-2.5 text-secondary hover:bg-gray-50 rounded-xl font-medium transition-colors text-sm">Cancelar</button>
+                <button onclick="saveTask()" id="btn-save-task" class="px-6 py-2.5 bg-brand hover:brightness-95 text-primary rounded-xl font-semibold shadow-subtle transition-all text-sm">
                     Guardar
                 </button>
             </div>
@@ -318,39 +324,39 @@
     </div>
 
     <!-- Type Modal (Create/Edit Type) -->
-    <div id="modal-type" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-end md:items-center justify-center hide p-0 md:p-4 pb-0">
-        <div class="bg-white rounded-t-3xl md:rounded-2xl shadow-xl w-full max-w-sm overflow-hidden transform transition-all fade-in flex flex-col">
-            <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
-                <h3 class="font-bold text-lg text-gray-800" id="modal-type-title">Tipo de Tarea</h3>
-                <button onclick="closeModal('modal-type')" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"><i class="ph ph-x text-xl"></i></button>
+    <div id="modal-type" class="fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-50 flex items-end md:items-center justify-center hide p-0 md:p-4 pb-0">
+        <div class="bg-white rounded-t-3xl md:rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all fade-in flex flex-col border border-gray-100">
+            <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
+                <h3 class="font-semibold text-lg text-primary" id="modal-type-title">Tipo de Tarea</h3>
+                <button onclick="closeModal('modal-type')" class="text-secondary hover:text-primary transition-colors p-1 rounded-lg hover:bg-gray-50"><i class="ph ph-x text-xl"></i></button>
             </div>
             
-            <div class="p-5 space-y-4 overflow-y-auto">
+            <div class="p-6 space-y-5 overflow-y-auto">
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Nombre</label>
-                    <input type="text" id="type-name" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-400 outline-none" placeholder="Ej. Reunión">
+                    <label class="block text-xs md:text-sm font-medium text-secondary mb-2">Nombre</label>
+                    <input type="text" id="type-name" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none text-sm text-primary transition-all shadow-subtle" placeholder="Ej. Reunión">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-2">Color</label>
-                    <div class="flex items-center gap-3">
+                    <label class="block text-xs md:text-sm font-medium text-secondary mb-3">Color</label>
+                    <div class="flex items-center gap-4">
                         <div class="flex gap-2.5 flex-wrap flex-1" id="color-picker">
                             <!-- Colors inserted by JS -->
                         </div>
-                        <div class="h-8 w-[1px] bg-gray-200 shrink-0"></div>
+                        <div class="h-10 w-[1px] bg-gray-200 shrink-0"></div>
                         <label class="w-8 h-8 rounded-full border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center cursor-pointer relative transition-transform hover:scale-110 shrink-0" id="custom-color-btn" title="Color personalizado">
-                            <div class="absolute inset-0 bg-gradient-to-tr from-blue-500 via-red-500 to-yellow-500 opacity-20 pointer-events-none" id="custom-color-bg"></div>
-                            <i class="ph-bold ph-plus text-xs text-gray-600" id="custom-color-icon"></i>
+                            <div class="absolute inset-0 bg-gradient-to-tr from-gray-200 via-gray-300 to-gray-400 opacity-20 pointer-events-none" id="custom-color-bg"></div>
+                            <i class="ph-bold ph-plus text-xs text-primary" id="custom-color-icon"></i>
                             <input type="color" id="custom-color-input" class="absolute opacity-0 w-full h-full cursor-pointer" onchange="selectCustomColor(event)">
                         </label>
                     </div>
                 </div>
             </div>
             
-            <div class="px-5 py-4 bg-gray-50/50 border-t border-gray-100 flex gap-3 justify-end pb-safe shrink-0">
-                 <button id="btn-delete-type" onclick="deleteCurrentType()" class="hide mr-auto px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl font-medium transition-colors text-sm">Eliminar</button>
-                <button onclick="closeModal('modal-type')" class="px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl font-medium transition-colors text-sm">Cancelar</button>
-                <button onclick="saveType()" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-900 text-white rounded-xl font-semibold shadow-sm transition-colors text-sm">
+            <div class="px-6 py-5 bg-white border-t border-gray-100 flex gap-3 justify-end pb-safe shrink-0">
+                 <button id="btn-delete-type" onclick="deleteCurrentType()" class="hide mr-auto px-4 py-2.5 text-red-500 hover:bg-red-50 rounded-xl font-medium transition-colors text-sm">Eliminar</button>
+                <button onclick="closeModal('modal-type')" class="px-5 py-2.5 text-secondary hover:bg-gray-50 rounded-xl font-medium transition-colors text-sm">Cancelar</button>
+                <button onclick="saveType()" class="px-6 py-2.5 bg-brand hover:brightness-95 text-primary rounded-xl font-semibold shadow-subtle transition-all text-sm">
                     Guardar
                 </button>
             </div>
@@ -358,8 +364,8 @@
     </div>
 
     <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-24 md:bottom-6 right-1/2 translate-x-1/2 md:translate-x-0 md:right-6 bg-gray-800 text-white px-4 py-3 rounded-xl shadow-lg transform transition-all translate-y-24 opacity-0 z-50 flex items-center gap-3 whitespace-nowrap">
-        <i class="ph-fill ph-check-circle text-brand-400 text-xl" id="toast-icon"></i>
+    <div id="toast" class="fixed bottom-24 md:bottom-8 right-1/2 translate-x-1/2 md:translate-x-0 md:right-8 bg-white border border-gray-100 text-primary px-5 py-3.5 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] transform transition-all translate-y-24 opacity-0 z-50 flex items-center gap-3 whitespace-nowrap">
+        <i class="ph-fill ph-check-circle text-brand text-xl" id="toast-icon"></i>
         <span id="toast-msg" class="font-medium text-sm"></span>
     </div>
 
@@ -504,13 +510,13 @@
             
             // Update active DESKTOP nav styling
             document.querySelectorAll('aside nav button').forEach(btn => {
-                btn.classList.remove('bg-brand-50', 'text-brand-900');
-                btn.classList.add('text-gray-600');
+                btn.classList.remove('bg-gray-50', 'text-primary');
+                btn.classList.add('text-secondary');
             });
             const activeDesktopBtn = document.getElementById(`nav-${view}`);
             if(activeDesktopBtn) {
-                activeDesktopBtn.classList.remove('text-gray-600', 'hover:bg-gray-50');
-                activeDesktopBtn.classList.add('bg-brand-50', 'text-brand-900');
+                activeDesktopBtn.classList.remove('text-secondary', 'hover:bg-gray-50', 'hover:text-primary');
+                activeDesktopBtn.classList.add('bg-gray-50', 'text-primary');
             }
 
             // Update active MOBILE nav styling
@@ -520,13 +526,13 @@
                 const icon = document.getElementById(`icon-mob-${id}`);
                 if (btn && icon) {
                     if (id === view) {
-                        btn.classList.add('text-brand-600');
-                        btn.classList.remove('text-gray-400');
+                        btn.classList.add('text-primary');
+                        btn.classList.remove('text-secondary');
                         icon.classList.remove('ph');
                         icon.classList.add('ph-fill');
                     } else {
-                        btn.classList.add('text-gray-400');
-                        btn.classList.remove('text-brand-600');
+                        btn.classList.add('text-secondary');
+                        btn.classList.remove('text-primary');
                         icon.classList.remove('ph-fill');
                         icon.classList.add('ph');
                     }
@@ -556,17 +562,17 @@
             const btnWeekly = document.getElementById('btn-view-weekly');
             
             if (view === 'daily') {
-                btnDaily.classList.add('bg-white', 'shadow-sm', 'text-gray-800');
-                btnDaily.classList.remove('text-gray-500', 'hover:text-gray-800');
-                btnWeekly.classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
-                btnWeekly.classList.add('text-gray-500', 'hover:text-gray-800');
+                btnDaily.classList.add('bg-white', 'shadow-subtle', 'text-primary');
+                btnDaily.classList.remove('text-secondary', 'hover:text-primary');
+                btnWeekly.classList.remove('bg-white', 'shadow-subtle', 'text-primary');
+                btnWeekly.classList.add('text-secondary', 'hover:text-primary');
                 document.getElementById('daily-view').classList.remove('hide');
                 document.getElementById('weekly-view').classList.add('hide');
             } else {
-                btnWeekly.classList.add('bg-white', 'shadow-sm', 'text-gray-800');
-                btnWeekly.classList.remove('text-gray-500', 'hover:text-gray-800');
-                btnDaily.classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
-                btnDaily.classList.add('text-gray-500', 'hover:text-gray-800');
+                btnWeekly.classList.add('bg-white', 'shadow-subtle', 'text-primary');
+                btnWeekly.classList.remove('text-secondary', 'hover:text-primary');
+                btnDaily.classList.remove('bg-white', 'shadow-subtle', 'text-primary');
+                btnDaily.classList.add('text-secondary', 'hover:text-primary');
                 document.getElementById('weekly-view').classList.remove('hide');
                 document.getElementById('daily-view').classList.add('hide');
             }
@@ -594,7 +600,7 @@
             const todayTasks = appState.tasks.filter(t => t.date === appState.currentDate.format('YYYY-MM-DD'));
             
             if (todayTasks.length === 0) {
-                container.innerHTML = '<div class="text-center text-gray-400 py-12 italic text-sm md:text-base">No hay tareas registradas hoy.</div>';
+                container.innerHTML = '<div class="text-center text-secondary py-16 text-sm md:text-base font-medium">No hay tareas registradas para hoy.</div>';
                 return;
             }
             
@@ -603,9 +609,8 @@
                 const typeColor = type.color || '#3b82f6';
 
                 const el = document.createElement('div');
-                el.className = `p-4 md:p-5 rounded-xl border-l-[6px] flex justify-between items-center cursor-pointer hover:opacity-90 transition-opacity shadow-sm bg-white border border-gray-100`;
+                el.className = `p-4 md:p-5 rounded-xl border-l-[4px] flex justify-between items-center cursor-pointer hover:opacity-90 transition-all shadow-subtle bg-white border border-gray-100`;
                 el.style.borderLeftColor = typeColor; 
-                el.style.backgroundColor = `${typeColor}15`;
                 el.onclick = () => openTaskModal(task);
 
                 // calculate duration backwards compatibility just in case
@@ -613,10 +618,10 @@
                 if (!task.duration && task.startTime && task.endTime) taskMins = timeToMins(task.endTime) - timeToMins(task.startTime);
 
                 el.innerHTML = `
-                    <div class="font-semibold text-sm md:text-base truncate leading-tight text-gray-800">
+                    <div class="font-medium text-sm md:text-base truncate text-primary">
                         ${type.name}
                     </div>
-                    <div class="font-bold text-xs md:text-sm opacity-90 whitespace-nowrap ml-4" style="color: ${typeColor}">
+                    <div class="font-medium text-xs md:text-sm opacity-90 whitespace-nowrap ml-4" style="color: ${typeColor}">
                         ${formatDuration(taskMins)}
                     </div>
                 `;
@@ -636,18 +641,18 @@
                 const dayTasks = appState.tasks.filter(t => t.date === dateStr);
                 
                 const col = document.createElement('div');
-                col.className = 'bg-white rounded-2xl border border-gray-100 shadow-sm p-3 md:p-4 flex flex-col min-h-[150px] md:min-h-[300px]';
+                col.className = 'bg-white rounded-2xl border border-gray-100 shadow-soft p-3 md:p-4 flex flex-col min-h-[150px] md:min-h-[300px]';
                 
                 let html = `
-                    <div class="text-center mb-3 pb-2 border-b border-gray-50">
-                        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">${day.format('ddd')}</div>
-                        <div class="text-lg md:text-xl font-bold ${isToday ? 'text-brand-500' : 'text-gray-800'}">${day.format('D')}</div>
+                    <div class="text-center mb-3 pb-3 border-b border-gray-50">
+                        <div class="text-[10px] font-medium text-secondary uppercase tracking-wider mb-1">${day.format('ddd')}</div>
+                        <div class="text-lg md:text-xl font-semibold ${isToday ? 'text-primary' : 'text-primary'}">${day.format('D')}</div>
                     </div>
-                    <div class="flex-1 flex flex-col gap-2 overflow-y-auto">
+                    <div class="flex-1 flex flex-col gap-2.5 overflow-y-auto">
                 `;
 
                 if (dayTasks.length === 0) {
-                    html += `<div class="text-[10px] md:text-xs text-gray-400 text-center italic mt-2">Sin tareas</div>`;
+                    html += `<div class="text-[10px] md:text-xs text-gray-300 text-center font-medium mt-2">Sin tareas</div>`;
                 }
 
                 dayTasks.forEach(task => {
@@ -658,8 +663,8 @@
                     if (!task.duration && task.startTime && task.endTime) taskMins = timeToMins(task.endTime) - timeToMins(task.startTime);
 
                     html += `
-                        <div onclick="openTaskModalById('${task.id}')" class="p-2.5 rounded-xl text-[10px] md:text-xs cursor-pointer border-l-[4px] shadow-sm hover:opacity-80 transition-opacity flex flex-col gap-1 border border-gray-100 text-gray-800" style="border-left-color: ${typeColor}; background-color: ${typeColor}15;">
-                            <div class="font-bold truncate">${type.name}</div>
+                        <div onclick="openTaskModalById('${task.id}')" class="p-3 rounded-lg text-[10px] md:text-xs cursor-pointer border-l-[3px] shadow-subtle hover:opacity-80 transition-all flex flex-col gap-1.5 border border-gray-100 text-primary bg-white" style="border-left-color: ${typeColor};">
+                            <div class="font-medium truncate">${type.name}</div>
                             <div class="opacity-90 font-medium" style="color: ${typeColor}">${formatDuration(taskMins)}</div>
                         </div>
                     `;
@@ -797,16 +802,16 @@
                 const typeColor = type.color || '#3b82f6';
                 const typeInitial = type.name.charAt(0).toUpperCase();
                 const li = document.createElement('li');
-                li.className = 'px-4 md:px-6 py-3 md:py-4 flex items-center justify-between hover:bg-gray-50 transition-colors group bg-white';
+                li.className = 'px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors group bg-white';
                 li.innerHTML = `
-                    <div class="flex items-center gap-3 md:gap-4">
-                        <div class="text-gray-300 hover:text-gray-500 cursor-grab px-1 hidden md:block"><i class="ph ph-dots-six-vertical"></i></div>
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-sm md:text-base font-bold shadow-sm" style="background-color: ${typeColor}20; color: ${typeColor}">
+                    <div class="flex items-center gap-4">
+                        <div class="text-gray-200 hover:text-gray-400 cursor-grab px-1 hidden md:block"><i class="ph ph-dots-six-vertical"></i></div>
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-sm md:text-base font-medium shadow-subtle border border-gray-100" style="color: ${typeColor}; background: #FFFFFF">
                             ${typeInitial}
                         </div>
-                        <span class="font-semibold text-sm md:text-base text-gray-800">${type.name}</span>
+                        <span class="font-medium text-sm md:text-base text-primary">${type.name}</span>
                     </div>
-                    <button onclick="openTypeModal('${type.id}')" class="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors md:opacity-0 md:group-hover:opacity-100 focus:opacity-100">
+                    <button onclick="openTypeModal('${type.id}')" class="p-2 text-secondary hover:text-primary hover:bg-gray-100 rounded-lg transition-colors md:opacity-0 md:group-hover:opacity-100 focus:opacity-100">
                         <i class="ph-bold ph-pencil-simple text-lg"></i>
                     </button>
                 `;
@@ -817,7 +822,7 @@
         function buildTypeSelectors() {
             const colorPicker = document.getElementById('color-picker');
             colorPicker.innerHTML = PREDEFINED_COLORS.map((hex, i) => `
-                <button onclick="selectColor('${hex}')" type="button" id="color-btn-${i}" class="w-7 h-7 md:w-8 md:h-8 rounded-full border border-gray-200 flex items-center justify-center transition-transform hover:scale-110 shrink-0" style="background-color: ${hex}">
+                <button onclick="selectColor('${hex}')" type="button" id="color-btn-${i}" class="w-7 h-7 md:w-8 md:h-8 rounded-full border border-gray-200 flex items-center justify-center transition-transform hover:scale-110 shrink-0 shadow-subtle" style="background-color: ${hex}">
                     <i class="ph-bold ph-check text-[10px] md:text-xs text-white hide" id="color-check-${i}"></i>
                 </button>
             `).join('');
@@ -831,10 +836,10 @@
                 const btn = document.getElementById(`color-btn-${i}`);
                 const check = document.getElementById(`color-check-${i}`);
                 if (c.toLowerCase() === hex.toLowerCase()) {
-                    btn.classList.add('ring-2', 'ring-offset-2', 'ring-gray-400');
+                    btn.classList.add('ring-2', 'ring-offset-2', 'ring-gray-300');
                     check.classList.remove('hide');
                 } else {
-                    btn.classList.remove('ring-2', 'ring-offset-2', 'ring-gray-400');
+                    btn.classList.remove('ring-2', 'ring-offset-2', 'ring-gray-300');
                     check.classList.add('hide');
                 }
             });
@@ -847,15 +852,15 @@
             const isPredefined = PREDEFINED_COLORS.some(c => c.toLowerCase() === hex.toLowerCase());
             
             if (!isPredefined) {
-                customBtn.classList.add('ring-2', 'ring-offset-2', 'ring-gray-400');
+                customBtn.classList.add('ring-2', 'ring-offset-2', 'ring-gray-300');
                 customBg.style.backgroundColor = hex;
                 customBg.className = "absolute inset-0 pointer-events-none"; // Removemos gradiente
                 customIcon.classList.add('hide');
                 document.getElementById('custom-color-input').value = hex;
             } else {
-                customBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-gray-400');
+                customBtn.classList.remove('ring-2', 'ring-offset-2', 'ring-gray-300');
                 customBg.style.backgroundColor = 'transparent';
-                customBg.className = "absolute inset-0 bg-gradient-to-tr from-blue-500 via-red-500 to-yellow-500 opacity-20 pointer-events-none";
+                customBg.className = "absolute inset-0 bg-gradient-to-tr from-gray-200 via-gray-300 to-gray-400 opacity-20 pointer-events-none";
                 customIcon.classList.remove('hide');
             }
         }
@@ -978,7 +983,7 @@
                 head: [['Fecha', 'Tarea', 'Tiempo Dedicado', 'Observaciones']],
                 body: tableData,
                 theme: 'striped',
-                headStyles: { fillColor: [250, 204, 21], textColor: [113, 63, 18] }, // Yellow Brand
+                headStyles: { fillColor: [96, 96, 96], textColor: [255, 255, 255] }, // Matches #606060
                 styles: { fontSize: 9, font: 'helvetica' },
                 columnStyles: { 3: { cellWidth: 70 } }
             });
@@ -1149,10 +1154,8 @@
             
             if (isError) {
                 icon.className = 'ph-fill ph-warning-circle text-red-400 text-xl';
-                toast.classList.replace('bg-gray-800', 'bg-red-900');
             } else {
-                icon.className = 'ph-fill ph-check-circle text-brand-400 text-xl';
-                toast.classList.replace('bg-red-900', 'bg-gray-800');
+                icon.className = 'ph-fill ph-check-circle text-brand text-xl';
             }
 
             toast.classList.remove('translate-y-24', 'opacity-0');
